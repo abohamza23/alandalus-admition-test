@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function getUserRole() {
+      return getUserData().role;
+    }
+    
+    function isUserActive() {
+      return getUserData().isActive == true;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token.email == "aboalmegdad@gmail.com" && request.auth.token.email_verified == true) ||
+        (getUserRole() == 'admin' && isUserActive())
+      );
+    }
+    
+    function isRegistrar() {
+      return isAuthenticated() && getUserRole() == 'registrar' && isUserActive();
+    }
+    
+    function isCoordinator() {
+      return isAuthenticated() && getUserRole() == 'coordinator' && isUserActive();
+    }
+    
+    function isDataEntry() {
+      return isAuthenticated() && getUserRole() == 'data_entry' && isUserActive();
+    }
+    
+    function isAcademicDeputy() {
+      return isAuthenticated() && getUserRole() == 'academic_deputy' && isUserActive();
+    }
+
+    function hasWriteAccess() {
+      return isAdmin() || isRegistrar() || isCoordinator() || isDataEntry();
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == userId);
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name']));
+      allow delete: if isAdmin() && request.auth.uid != userId; // Cannot delete self
+    }
+    
+    match /students/{studentId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow create: if isAuthenticated() && isUserActive() && (isAdmin() || isRegistrar() || isDataEntry());
+      allow update: if isAuthenticated() && isUserActive() && hasWriteAccess();
+      allow delete: if isAuthenticated() && isUserActive() && (isAdmin() || isRegistrar());
+    }
+    
+    match /settings/{settingId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+    }
+    
+    match /activity_logs/{logId} {
+      allow read: if isAuthenticated() && isUserActive() && (isAdmin() || isRegistrar());
+      allow create: if isAuthenticated() && isUserActive();
+      allow update, delete: if false; // Logs are immutable
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the system with specific roles and permissions.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "role": { 
+          "type": "string", 
+          "enum": ["admin", "registrar", "coordinator", "data_entry", "academic_deputy"],
+          "description": "Role of the user" 
+        },
+        "isActive": { "type": "boolean", "description": "Whether the user account is active" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["uid", "name", "email", "role", "isActive", "createdAt"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "A student applying for admission.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Auto-generated student ID" },
+        "name": { "type": "string", "description": "Full name of the student" },
+        "grade": { "type": "string", "description": "Grade applying for" },
+        "examDate": { "type": "string", "format": "date", "description": "Date of the exam" },
+        "arabicScore": { "type": "number", "description": "Score in Arabic" },
+        "englishScore": { "type": "number", "description": "Score in English" },
+        "mathScore": { "type": "number", "description": "Score in Math" },
+        "interviewScore": { "type": "number", "description": "Score in Interview" },
+        "certificateScore": { "type": "number", "description": "Score in Certificate" },
+        "totalWritten": { "type": "number", "description": "Total score of written exams" },
+        "totalFinal": { "type": "number", "description": "Total final score" },
+        "status": { 
+          "type": "string", 
+          "enum": ["pending", "ناجح", "إعادة", "مرفوض"],
+          "description": "Final status of the student" 
+        },
+        "retakeType": { 
+          "type": "string", 
+          "enum": ["none", "subjects", "interview"],
+          "description": "Type of retake if applicable" 
+        },
+        "retakeSubjects": { 
+          "type": "array", 
+          "items": { "type": "string" },
+          "description": "Subjects to retake" 
+        },
+        "retakeInterviewScore": { "type": "number", "description": "Retake score for interview" },
+        "retakeSubjectScores": { 
+          "type": "object", 
+          "description": "Retake scores for subjects" 
+        },
+        "notes": { "type": "string", "description": "Additional notes" },
+        "createdBy": { "type": "string", "description": "User ID who created the record" },
+        "updatedBy": { "type": "string", "description": "User ID who last updated the record" },
+        "statusUpdatedBy": { "type": "string", "description": "User ID who last updated the status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["name", "grade", "examDate", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "System settings for grading and classifications.",
+      "type": "object",
+      "properties": {
+        "passingScore": { "type": "number", "description": "Minimum score to pass" },
+        "subjectClassifications": { "type": "object", "description": "Grading classifications for subjects" },
+        "totalClassifications": { "type": "object", "description": "Grading classifications for total score" }
+      }
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Log of user activities.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "User ID" },
+        "userName": { "type": "string", "description": "User Name" },
+        "action": { "type": "string", "description": "Action performed" },
+        "details": { "type": "string", "description": "Details of the action" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Timestamp of the action" }
+      },
+      "required": ["userId", "userName", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Collection of users"
+    },
+    "students/{studentId}": {
+      "schema": { "$ref": "#/entities/Student" },
+      "description": "Collection of students"
+    },
+    "settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Collection of settings"
+    },
+    "activity_logs/{logId}": {
+      "schema": { "$ref": "#/entities/ActivityLog" },
+      "description": "Collection of activity logs"
+    }
+  }
+}
