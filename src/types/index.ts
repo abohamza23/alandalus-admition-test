@@ -3,7 +3,7 @@ export type Role = 'admin' | 'registrar' | 'coordinator' | 'data_entry' | 'acade
 export interface User {
   id: string;
   name: string;
-  email: string;
+  username: string; // was email
   password?: string; // Only for mock auth
   role: Role;
   isActive: boolean;
@@ -19,6 +19,7 @@ export interface Student {
   name: string;
   grade: string;
   examDate: string;
+  academicYear: string;
   
   // Academic Scores
   arabicScore: number | null;
@@ -58,6 +59,7 @@ export interface Student {
 
 export interface Settings {
   passingScore: number;
+  academicYear: string;
   subjectClassifications: {
     excellent: number;
     veryGood: number;

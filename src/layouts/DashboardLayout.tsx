@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useAppStore } from '../store/appStore';
 import { 
   LayoutDashboard, 
   Users, 
@@ -17,6 +18,7 @@ import { cn } from '../lib/utils';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuthStore();
+  const settings = useAppStore(state => state.settings);
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -54,8 +56,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         isSidebarOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="px-5 pb-[30px] pt-5 text-center border-b border-white/10">
-          <h1 className="text-[18px] font-bold mb-1">مدرسة الأندلس</h1>
-          <small className="opacity-70">نظام رصد امتحان القبول</small>
+          <h1 className="text-[17px] font-bold mb-1 leading-tight">مدرسة الأندلس الابتدائية<br/>الخاصة للبنين</h1>
+          <small className="opacity-70">نظام رصد القبول ({settings?.academicYear})</small>
         </div>
 
         <nav className="flex-grow pt-5">

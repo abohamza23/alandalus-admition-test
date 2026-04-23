@@ -24,11 +24,12 @@ interface AppState {
 
 const defaultSettings: Settings = {
   passingScore: 50,
+  academicYear: '2026-2027',
   subjectClassifications: {
-    excellent: 90,
-    veryGood: 80,
-    good: 70,
-    acceptable: 50,
+    excellent: 9,
+    veryGood: 8,
+    good: 7,
+    acceptable: 5,
   },
   totalClassifications: {
     excellent: 90,
@@ -41,7 +42,7 @@ const defaultSettings: Settings = {
 const defaultAdmin: User = {
   id: 'admin-1',
   name: 'مدير النظام',
-  email: 'admin@alandalus.edu',
+  username: 'admin',
   password: 'admin',
   role: 'admin',
   isActive: true,
@@ -101,6 +102,7 @@ export const useAppStore = create<AppState>()(
           const newStudent: Student = {
             ...studentData,
             id: generateId(),
+            academicYear: state.settings.academicYear, // Inject current academic year
             studentNumber: nextStudentNumber,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),

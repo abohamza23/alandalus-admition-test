@@ -102,10 +102,10 @@ export default function AcademicScores() {
                     <Input
                       type="number"
                       min="0"
-                      max="100"
+                      max="10"
                       value={scores.arabicScore}
                       onChange={e => setScores({...scores, arabicScore: e.target.value})}
-                      placeholder="من 100"
+                      placeholder="من 10"
                     />
                   </div>
                   <div>
@@ -113,10 +113,10 @@ export default function AcademicScores() {
                     <Input
                       type="number"
                       min="0"
-                      max="100"
+                      max="10"
                       value={scores.englishScore}
                       onChange={e => setScores({...scores, englishScore: e.target.value})}
-                      placeholder="من 100"
+                      placeholder="من 10"
                     />
                   </div>
                   <div>
@@ -124,10 +124,10 @@ export default function AcademicScores() {
                     <Input
                       type="number"
                       min="0"
-                      max="100"
+                      max="10"
                       value={scores.mathScore}
                       onChange={e => setScores({...scores, mathScore: e.target.value})}
-                      placeholder="من 100"
+                      placeholder="من 10"
                     />
                   </div>
                 </div>

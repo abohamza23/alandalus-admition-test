@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { GraduationCap } from 'lucide-react';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
@@ -20,7 +20,12 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
-    const user = users.find(u => u.email === email && u.password === password);
+    // Adding support for old cached users that only have 'email' instead of 'username'
+    const user = users.find((u: any) => {
+      const matchUsername = u.username === username;
+      const matchOldEmailFallback = !u.username && u.email && (u.email === username || u.email.split('@')[0] === username);
+      return (matchUsername || matchOldEmailFallback) && u.password === password;
+    });
     
     if (user) {
       if (!user.isActive) {
@@ -30,7 +35,7 @@ export default function Login() {
       login(user);
       navigate('/');
     } else {
-      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      setError('اسم المستخدم أو كلمة المرور غير صحيحة');
     }
   };
 
@@ -46,7 +51,7 @@ export default function Login() {
           نظام رصد امتحان القبول
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          مدرسة الأندلس الابتدائية
+          مدرسة الأندلس الابتدائية الخاصة للبنين
         </p>
       </div>
 
@@ -65,14 +70,16 @@ export default function Login() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  البريد الإلكتروني
+                  اسم المستخدم
                 </label>
                 <Input
-                  type="email"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@alandalus.edu"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="admin"
+                  dir="ltr"
+                  className="text-right"
                 />
               </div>
 
@@ -86,6 +93,8 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  dir="ltr"
+                  className="text-right"
                 />
               </div>
 
@@ -95,7 +104,7 @@ export default function Login() {
             </form>
             
             <div className="mt-6 text-xs text-gray-500 text-center">
-              <p>للتجربة: admin@alandalus.edu / admin</p>
+              <p>للتجربة: اسم المستخدم: admin | كلمة المرور: admin</p>
             </div>
           </CardContent>
         </Card>

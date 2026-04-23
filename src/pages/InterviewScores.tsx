@@ -118,9 +118,10 @@ export default function InterviewScores() {
                     <Input
                       type="number"
                       min="0"
-                      max="100"
+                      max="50"
                       value={formData.interviewScore}
                       onChange={e => setFormData({...formData, interviewScore: e.target.value})}
+                      placeholder="من 50"
                     />
                   </div>
                   <div>
@@ -128,9 +129,10 @@ export default function InterviewScores() {
                     <Input
                       type="number"
                       min="0"
-                      max="100"
+                      max="20"
                       value={formData.certificateScore}
                       onChange={e => setFormData({...formData, certificateScore: e.target.value})}
+                      placeholder="من 20"
                     />
                   </div>
                 </div>

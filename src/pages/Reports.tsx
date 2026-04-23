@@ -7,16 +7,104 @@ import { Badge } from '../components/ui/badge';
 import { Select } from '../components/ui/select';
 
 export default function Reports() {
-  const { students } = useAppStore();
+  const { students, settings } = useAppStore();
   const { user } = useAuthStore();
   const [reportType, setReportType] = useState('summary');
   const [gradeFilter, setGradeFilter] = useState('all');
+  const [yearFilter, setYearFilter] = useState(settings?.academicYear || 'all');
 
-  const filteredStudents = gradeFilter === 'all' 
-    ? students 
-    : students.filter(s => s.grade === gradeFilter);
+  const years = Array.from(new Set(students.map(s => s.academicYear).filter(Boolean)));
+  if (!years.includes(settings?.academicYear)) {
+    if(settings?.academicYear) years.push(settings.academicYear);
+  }
+
+  const filteredStudents = students.filter(s => {
+    const matchGrade = gradeFilter === 'all' || s.grade === gradeFilter;
+    const matchYear = yearFilter === 'all' || s.academicYear === yearFilter;
+    return matchGrade && matchYear;
+  });
 
   const isAcademicDeputy = user?.role === 'academic_deputy';
+
+  const getClassification = (score: number) => {
+    if (score >= settings.totalClassifications.excellent) return 'ممتاز';
+    if (score >= settings.totalClassifications.veryGood) return 'جيد جداً';
+    if (score >= settings.totalClassifications.good) return 'جيد';
+    if (score >= settings.totalClassifications.acceptable) return 'مقبول';
+    return 'ضعيف';
+  };
+
+  const renderClassificationReport = () => {
+    const classifiedStudents = filteredStudents.filter(s => s.status === 'ناجح' && s.totalFinal !== null);
+    
+    const countByClass = {
+      'ممتاز': classifiedStudents.filter(s => getClassification(s.totalFinal!) === 'ممتاز').length,
+      'جيد جداً': classifiedStudents.filter(s => getClassification(s.totalFinal!) === 'جيد جداً').length,
+      'جيد': classifiedStudents.filter(s => getClassification(s.totalFinal!) === 'جيد').length,
+      'مقبول': classifiedStudents.filter(s => getClassification(s.totalFinal!) === 'مقبول').length,
+      'ضعيف': classifiedStudents.filter(s => getClassification(s.totalFinal!) === 'ضعيف').length,
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {Object.entries(countByClass).map(([cls, count]) => (
+            <Card key={cls}>
+              <CardContent className="p-4 text-center">
+                <div className="text-[13px] text-muted mb-1">{cls}</div>
+                <div className="text-2xl font-bold text-primary">{count}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>الطلاب المقبولين حسب التصنيف</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الاسم</TableHead>
+                  <TableHead>الصف</TableHead>
+                  <TableHead>المجموع النهائي</TableHead>
+                  <TableHead>التصنيف</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {classifiedStudents.map(s => {
+                  const cls = getClassification(s.totalFinal!);
+                  return (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-medium">{s.name}</TableCell>
+                      <TableCell>{s.grade}</TableCell>
+                      <TableCell className="font-bold">{s.totalFinal}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={
+                          cls === 'ممتاز' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                          cls === 'جيد جداً' ? 'bg-sky-50 text-sky-700 border-sky-200' :
+                          cls === 'جيد' ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                          'bg-gray-50 text-gray-700 border-gray-200'
+                        }>{cls}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {classifiedStudents.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8 text-muted">
+                      لا يوجد طلاب مصنفين
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   const renderSummaryReport = () => {
     const total = filteredStudents.length;
@@ -174,6 +262,16 @@ export default function Reports() {
             <option value="summary">تقرير ملخص وإحصائيات</option>
             <option value="detailed">تقرير تفصيلي للطلاب</option>
             <option value="retake">تقرير طلاب الإعادة</option>
+            <option value="classification">تقرير تصنيفات الطلاب</option>
+          </Select>
+        </div>
+        <div className="flex-1">
+          <label className="block text-[13px] font-medium text-muted mb-1">تصفية حسب العام الدراسي</label>
+          <Select value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
+            <option value="all">جميع الأعوام</option>
+            {years.map(y => (
+              <option key={String(y)} value={String(y)}>{String(y)}</option>
+            ))}
           </Select>
         </div>
         <div className="flex-1">
@@ -193,6 +291,7 @@ export default function Reports() {
       {reportType === 'summary' && renderSummaryReport()}
       {reportType === 'detailed' && renderDetailedReport()}
       {reportType === 'retake' && renderRetakeReport()}
+      {reportType === 'classification' && renderClassificationReport()}
     </div>
   );
 }

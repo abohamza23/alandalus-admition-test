@@ -26,11 +26,30 @@ export default function Settings() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
+            <CardTitle>الإعدادات العامة</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">العام الدراسي الحالي</label>
+              <Input 
+                type="text" 
+                value={formData.academicYear}
+                onChange={e => setFormData({...formData, academicYear: e.target.value})}
+                className="max-w-xs"
+                placeholder="مثال: 2026-2027"
+              />
+              <p className="text-xs text-gray-500 mt-1">سيتم ربط الطلاب الجدد بهذا العام الدراسي.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>إعدادات النجاح والرسوب</CardTitle>
           </CardHeader>
           <CardContent>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">الحد الأدنى للنجاح (المجموع النهائي)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">الحد الأدنى للنجاح (المجموع النهائي من 100)</label>
               <Input 
                 type="number" 
                 value={formData.passingScore}
@@ -43,7 +62,7 @@ export default function Settings() {
 
         <Card>
           <CardHeader>
-            <CardTitle>تصنيفات درجات المواد التحريرية</CardTitle>
+            <CardTitle>تصنيفات درجات المواد التحريرية (من 10)</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

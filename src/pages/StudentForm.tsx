@@ -11,7 +11,7 @@ import { Select } from '../components/ui/select';
 export default function StudentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { students, addStudent, updateStudent } = useAppStore();
+  const { students, addStudent, updateStudent, settings } = useAppStore();
   const { user } = useAuthStore();
   
   const isEdit = Boolean(id);
@@ -44,6 +44,7 @@ export default function StudentForm() {
     } else {
       addStudent({
         ...formData,
+        academicYear: settings.academicYear, // Only needed for TypeScript matching, store overrides it
         arabicScore: null,
         englishScore: null,
         mathScore: null,

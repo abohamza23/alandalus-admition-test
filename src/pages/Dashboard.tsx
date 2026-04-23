@@ -5,12 +5,14 @@ import { Users, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Dashboard() {
-  const students = useAppStore((state) => state.students);
+  const { students, settings } = useAppStore();
   
-  const totalStudents = students.length;
-  const passed = students.filter(s => s.status === 'ناجح').length;
-  const retake = students.filter(s => s.status === 'إعادة').length;
-  const rejected = students.filter(s => s.status === 'مرفوض').length;
+  const currentAcademicYearStudents = students.filter(s => s.academicYear === settings.academicYear);
+  
+  const totalStudents = currentAcademicYearStudents.length;
+  const passed = currentAcademicYearStudents.filter(s => s.status === 'ناجح').length;
+  const retake = currentAcademicYearStudents.filter(s => s.status === 'إعادة').length;
+  const rejected = currentAcademicYearStudents.filter(s => s.status === 'مرفوض').length;
   
   const statusData = [
     { name: 'ناجح', value: passed, color: '#10b981' },
@@ -21,7 +23,7 @@ export default function Dashboard() {
 
   // Average scores
   const getAverage = (key: 'arabicScore' | 'englishScore' | 'mathScore') => {
-    const validScores = students.filter(s => s[key] !== null);
+    const validScores = currentAcademicYearStudents.filter(s => s[key] !== null);
     if (validScores.length === 0) return 0;
     const sum = validScores.reduce((acc, s) => acc + (s[key] || 0), 0);
     return Math.round(sum / validScores.length);
@@ -35,7 +37,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">لوحة القيادة</h1>
+      <div className="flex justify-between items-end">
+        <h1 className="text-2xl font-bold text-gray-900">لوحة القيادة</h1>
+        <div className="text-sm font-medium text-muted">العام الدراسي: {settings.academicYear}</div>
+      </div>
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-[25px]">
@@ -105,7 +110,7 @@ export default function Dashboard() {
                 <BarChart data={averagesData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
-                  <YAxis domain={[0, 100]} />
+                  <YAxis domain={[0, 10]} />
                   <Tooltip />
                   <Bar dataKey="score" fill="#3b82f6" name="متوسط الدرجة" radius={[4, 4, 0, 0]} />
                 </BarChart>
