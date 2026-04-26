@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Role check helper
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        getUserRole() == 'admin'
+      );
+    }
+
+    function hasWriteAccess() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+        getUserRole() in ['admin', 'registrar', 'coordinator', 'data_entry']
+      );
+    }
+    
+    // User validation
+    function isValidUser(data) {
+      return data.size() == 6 &&
+             data.keys().hasAll(['uid', 'name', 'username', 'email', 'role', 'isActive', 'createdAt']) &&
+             data.uid is string &&
+             data.name is string && data.name.size() <= 100 &&
+             data.username is string && data.username.size() <= 100 &&
+             data.email is string && data.email.size() <= 100 &&
+             data.role in ['admin', 'registrar', 'coordinator', 'data_entry', 'academic_deputy'] &&
+             data.isActive is bool &&
+             data.createdAt is string;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      // Only admins can create/update users. 
+      // A special hatch is needed for the first admin, or we rely on Cloud Console to make the first user.
+      allow create, update, delete: if isAdmin() && isValidId(userId);
+    }
+
+    match /settings/global {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /students/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if hasWriteAccess() && isValidId(studentId);
+    }
+    
+    match /activity_logs/{logId} {
+      allow read: if hasWriteAccess();
+      allow create: if isAuthenticated() && isValidId(logId);
+    }
+  }
+}

@@ -3,7 +3,7 @@ export type Role = 'admin' | 'registrar' | 'coordinator' | 'data_entry' | 'acade
 export interface User {
   id: string;
   name: string;
-  username: string; // was email
+  email: string; // was username
   password?: string; // Only for mock auth
   role: Role;
   isActive: boolean;

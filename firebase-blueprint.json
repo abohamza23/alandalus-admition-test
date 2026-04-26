@@ -16,7 +16,7 @@
         "isActive": { "type": "boolean", "description": "Whether the user account is active" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
       },
-      "required": ["uid", "name", "email", "role", "isActive", "createdAt"]
+      "required": ["uid", "name", "role", "isActive", "createdAt"]
     },
     "Student": {
       "title": "Student",
@@ -24,9 +24,11 @@
       "type": "object",
       "properties": {
         "id": { "type": "string", "description": "Auto-generated student ID" },
+        "studentNumber": { "type": "number", "description": "Sequential student number" },
         "name": { "type": "string", "description": "Full name of the student" },
         "grade": { "type": "string", "description": "Grade applying for" },
         "examDate": { "type": "string", "format": "date", "description": "Date of the exam" },
+        "academicYear": { "type": "string", "description": "Academic year" },
         "arabicScore": { "type": "number", "description": "Score in Arabic" },
         "englishScore": { "type": "number", "description": "Score in English" },
         "mathScore": { "type": "number", "description": "Score in Math" },
@@ -61,7 +63,7 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
       },
-      "required": ["name", "grade", "examDate", "createdBy", "createdAt", "updatedAt"]
+      "required": ["name", "grade", "examDate", "academicYear", "createdBy", "createdAt", "updatedAt"]
     },
     "Settings": {
       "title": "Settings",
@@ -69,6 +71,7 @@
       "type": "object",
       "properties": {
         "passingScore": { "type": "number", "description": "Minimum score to pass" },
+        "academicYear": { "type": "string", "description": "Current academic year" },
         "subjectClassifications": { "type": "object", "description": "Grading classifications for subjects" },
         "totalClassifications": { "type": "object", "description": "Grading classifications for total score" }
       }

@@ -17,7 +17,7 @@ export default function Users() {
 
   const [formData, setFormData] = useState({
     name: '',
-    username: '',
+    email: '',
     password: '',
     role: 'data_entry' as Role,
     isActive: true
@@ -26,7 +26,7 @@ export default function Users() {
   const handleEdit = (user: any) => {
     setFormData({
       name: user.name,
-      username: user.username,
+      email: user.email,
       password: user.password || '',
       role: user.role,
       isActive: user.isActive
@@ -47,7 +47,7 @@ export default function Users() {
     
     setIsFormOpen(false);
     setEditingId(null);
-    setFormData({ name: '', username: '', password: '', role: 'data_entry', isActive: true });
+    setFormData({ name: '', email: '', password: '', role: 'data_entry', isActive: true });
   };
 
   const roleNames: Record<Role, string> = {
@@ -64,7 +64,7 @@ export default function Users() {
         <h1 className="text-2xl font-bold text-gray-900">إدارة المستخدمين</h1>
         <Button onClick={() => {
           setEditingId(null);
-          setFormData({ name: '', username: '', password: '', role: 'data_entry', isActive: true });
+          setFormData({ name: '', email: '', password: '', role: 'data_entry', isActive: true });
           setIsFormOpen(!isFormOpen);
         }} className="bg-primary text-white border-none px-4 py-2 rounded-[6px] text-[13px] cursor-pointer">
           {isFormOpen ? 'إلغاء' : '+ إضافة مستخدم جديد'}
@@ -84,8 +84,8 @@ export default function Users() {
                   <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم</label>
-                  <Input type="text" dir="ltr" className="text-right" required value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                  <Input type="email" dir="ltr" className="text-right" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
@@ -126,7 +126,7 @@ export default function Users() {
             <TableHeader>
               <TableRow>
                 <TableHead>الاسم</TableHead>
-                <TableHead>اسم المستخدم</TableHead>
+                <TableHead>البريد الإلكتروني</TableHead>
                 <TableHead>الدور</TableHead>
                 <TableHead>الحالة</TableHead>
                 <TableHead>الإجراءات</TableHead>
@@ -136,7 +136,7 @@ export default function Users() {
               {users.map(u => (
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">{u.name}</TableCell>
-                  <TableCell dir="ltr" className="text-right">{u.username}</TableCell>
+                  <TableCell dir="ltr" className="text-right">{u.email}</TableCell>
                   <TableCell>{roleNames[u.role]}</TableCell>
                   <TableCell>
                     <Badge variant={u.isActive ? 'success' : 'destructive'}>

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { useAppStore } from './store/appStore';
+import { useAuthStore } from './store/authStore';
 
 // Pages
 import Login from './pages/Login';
@@ -15,6 +17,18 @@ import Users from './pages/Users';
 import Settings from './pages/Settings';
 
 export default function App() {
+  const initialize = useAppStore(state => state.initialize);
+  const cleanup = useAppStore(state => state.cleanup);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      initialize();
+    } else {
+      cleanup();
+    }
+  }, [isAuthenticated, initialize, cleanup]);
+
   return (
     <BrowserRouter>
       <Routes>

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { GraduationCap } from 'lucide-react';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
@@ -16,26 +16,24 @@ export default function Login() {
   const users = useAppStore((state) => state.users);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Adding support for old cached users that only have 'email' instead of 'username'
-    const user = users.find((u: any) => {
-      const matchUsername = u.username === username;
-      const matchOldEmailFallback = !u.username && u.email && (u.email === username || u.email.split('@')[0] === username);
-      return (matchUsername || matchOldEmailFallback) && u.password === password;
-    });
-    
-    if (user) {
-      if (!user.isActive) {
+    // Wait for the Firebase login result
+    const success = await login(email, password);
+
+    if (success) {
+      // Find the user object locally to verify active state
+      const user = users.find(u => u.email === email || (u as any).username === email);
+      if (user && !user.isActive) {
         setError('هذا الحساب غير مفعل. يرجى مراجعة مدير النظام.');
+        useAuthStore.getState().logout();
         return;
       }
-      login(user);
       navigate('/');
     } else {
-      setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
   };
 
@@ -70,14 +68,14 @@ export default function Login() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  اسم المستخدم
+                  البريد الإلكتروني
                 </label>
                 <Input
-                  type="text"
+                  type="email"
                   required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@alandalus.app"
                   dir="ltr"
                   className="text-right"
                 />
@@ -104,7 +102,7 @@ export default function Login() {
             </form>
             
             <div className="mt-6 text-xs text-gray-500 text-center">
-              <p>للتجربة: اسم المستخدم: admin | كلمة المرور: admin</p>
+              <p>للتجربة: البريد الإلكتروني: admin@alandalus.app | كلمة المرور: admin</p>
             </div>
           </CardContent>
         </Card>
